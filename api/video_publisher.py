@@ -1,25 +1,31 @@
 import os.path
-import threading
 import time
 import uuid
-import asyncio
 import pika
 import toml
-import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import shutil
 
-from aws_utils import AWSS3
 from logger import get_logger
 
 logger = get_logger()
+
+from aws_utils import AWSS3
 
 
 class VideoUploadResponse(BaseModel):
     message: str
     video_link: str
+
+
+class VideoInputValidator:
+    FORMATS = ["video/mp4", "video/avi", "video/x-msvideo", "video/x-ms-wmv", "video/x-matroska", "video/webm"]
+
+    @classmethod
+    def validate(cls, video: UploadFile):
+        return video.content_type in cls.FORMATS
 
 
 class VideoUploader:
@@ -89,6 +95,7 @@ class VideoUploader:
                                             body=message.encode())
 
     def get_presigned_url(self, target_s3_relative_path):
+        logger.info(f"generating presigned url for {target_s3_relative_path=}")
         output_dir = self._outputs_path
         s3_output_url = f"{os.path.join(output_dir, target_s3_relative_path)}"
         return self.aws_s3.presign_s3_url(s3_output_url)
@@ -98,40 +105,3 @@ class VideoUploader:
         rabbitmq_channel = rabbitmq_connection.channel()
         rabbitmq_channel.queue_declare(queue=self._queue_name)
         return rabbitmq_channel
-
-
-class VideoInputValidator:
-    FORMATS = ["video/mp4", "video/avi", "video/x-msvideo", "video/x-ms-wmv", "video/x-matroska", "video/webm"]
-    @classmethod
-    def validate(cls, video: UploadFile):
-        return video.content_type in cls.FORMATS
-
-app = FastAPI()
-video_uploader = VideoUploader()
-
-
-@app.post("/upload/", response_model=VideoUploadResponse)
-async def upload_video(video: UploadFile = File(...)):
-    logger.info(f"received {video.filename=} for upload")
-
-    if VideoInputValidator.validate(video):
-        return await video_uploader.upload_video(video)
-    else:
-        return JSONResponse(content={"error": "Invalid video format"}, status_code=400)
-
-
-def main():
-    empty_message_thread = threading.Thread(target=video_uploader.send_empty_message_to_queue)
-    empty_message_thread.start()
-    asyncio.run(uvicorn.run(app, host="0.0.0.0", port=5000))
-    empty_message_thread.join()
-
-
-
-
-if __name__ == "__main__":
-    logger.info(f"Running API server")
-    main()
-
-
-

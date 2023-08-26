@@ -9,7 +9,7 @@ services:
 
     networks:
       - my_network
-    command: sh -c "sleep 10 && python app.py"
+    command: sh -c "sleep 10 && python routes.py"
 
   rabbitmq:
     image: rabbitmq:management
@@ -19,14 +19,14 @@ services:
     networks:
       - my_network
 
-  audio_processor:
+  movie_maker:
     build: ./movie_maker
     depends_on:
       - rabbitmq
       - api
     networks:
       - my_network
-    command: sh -c "sleep 10 && python audio_processor.py"
+    command: sh -c "sleep 10 && python messaging_system/video_queue.py"
 
 networks:
     my_network:

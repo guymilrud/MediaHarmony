@@ -2,7 +2,8 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from api.app import VideoUploader, app
+from routes import app
+from video_publisher import VideoUploader
 
 client = TestClient(app)
 

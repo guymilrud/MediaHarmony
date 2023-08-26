@@ -66,7 +66,7 @@ class VideoQueue:
                     ch.basic_ack(delivery_tag=method.delivery_tag)
                     return
 
-                ch.handle_video(video_relative_s3_path)
+                self.handle_video(video_relative_s3_path)
                 ch.basic_ack(delivery_tag=method.delivery_tag)
             except Exception as e:
                 logger.error(f"session failed with {e})")
@@ -92,8 +92,9 @@ class VideoQueue:
         logger.info(f"Processed video saved at {result_video_path}")
 
     def _download_media(self, video_s3_path: str, local_video_path:str) -> None:
+        source_s3_video_path = os.path.join(self._s3_uploads_dir, video_s3_path)
         self._aws_s3.download_file(s3_path=self._s3_audio_path, local_target_path=self.resource_audio_path)
-        self._aws_s3.download_file(s3_path=video_s3_path, local_target_path=local_video_path)
+        self._aws_s3.download_file(s3_path=source_s3_video_path, local_target_path=local_video_path)
 
 
 
