@@ -1,0 +1,35 @@
+version: '3'
+services:
+  api:
+    build: ./api
+    ports:
+      - "8080:5000"
+    depends_on:
+      - rabbitmq
+
+    networks:
+      - my_network
+    command: sh -c "sleep 10 && python app.py"
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - my_network
+
+  audio_processor:
+    build: ./movie_maker
+    depends_on:
+      - rabbitmq
+      - api
+    networks:
+      - my_network
+    command: sh -c "sleep 10 && python audio_processor.py"
+
+networks:
+    my_network:
+      driver: bridge
+
+

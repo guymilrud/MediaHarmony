@@ -1,0 +1,12 @@
+#pycharm related files
+.idea
+.DS_Store
+
+#virtualenv
+*venv
+venv
+
+**/settings.toml
+**/output
+
+```
