@@ -1,13 +1,13 @@
 import os
 import pytest
-from moviepy.editor import VideoFileClip, AudioFileClip
-from movie_maker.aws_utils import AWSS3
-from movie_maker.audio_processor import VideoProcessor
+from moviepy.editor import VideoFileClip
+from aws_utils import AWSS3
+from media.media_processor import MediaProcessor
 
 
 @pytest.fixture
 def video_processor():
-    return VideoProcessor(skip_rabbit=True)
+    return MediaProcessor()
 
 
 @pytest.fixture

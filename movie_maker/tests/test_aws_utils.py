@@ -1,6 +1,6 @@
 import os
 
-from movie_maker.aws_utils import AWSS3
+from aws_utils import AWSS3
 
 this_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -11,7 +11,6 @@ def test_upload_file():
     source_path = os.path.join(this_path, "resources/dummy.txt")
     aws_s3.upload_file(source_path, s3_path)
     assert aws_s3.is_file_exist(s3_path)
-
 
 
 def test_download_file():
