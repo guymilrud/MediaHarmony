@@ -19,7 +19,8 @@ class MediaProcessor:
 
 
     def combine_video_and_audio(self, video_path:str, audio_path:str) -> str:
-        result_local_output_path = video_path.replace("input/uploads/", "output/")
+        result_local_output_path = video_path.replace("input/", "output/")
+        logger.info(f"{result_local_output_path=} ,{video_path=}")
         self._process_media(result_local_output_path, video_path, audio_path)
         return result_local_output_path
 
