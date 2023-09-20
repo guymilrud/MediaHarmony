@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediaharmony-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: mediaharmony-api
+        image: <username>/mediaharmony-api:1.0
+        ports:
+        - containerPort: 5000
+        command: ["sh", "-c", "sleep 10 && python routes.py"]
+        env:
+          - name: RABBITMQ_HOST
+            value: "rabbitmq"

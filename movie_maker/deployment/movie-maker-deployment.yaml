@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediaharmony-movie-maker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-maker
+  template:
+    metadata:
+      labels:
+        app: movie-maker
+    spec:
+      containers:
+      - name: mediaharmony-movie-maker
+        image: <username>/mediaharmony-movie-maker:1.0
+        command: ["sh", "-c", "sleep 10 && python messaging_system/video_queue.py"]
+        env:
+          - name: RABBITMQ_HOST
+            value: "rabbitmq"

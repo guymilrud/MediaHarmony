@@ -34,9 +34,30 @@ Upload your video file and you will get the response with the video url in s3 bu
 #### using docker
    build:
    `cd movie_maker/`
-   `docker build -t mediaharmony-movie_maker .`
+   `docker build -t mediaharmony-movie-maker .`
    `cd api/`
    `docker build -t mediaharmony-api .`
-   rabbitmq: `docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 --network my_network rabbitmq:management`
-   api: `docker run -d --name mediaharmony-api -p 8080:5000 --network my_network mediaharmony-api sh -c "sleep 10 && python routes.py"`
-   movie_maker: `docker run -d --name mediaharmony-movie_maker --network my_network mediaharmony-movie_maker sh -c "sleep 10 && python messaging_system/video_queue.py"`
+   run:
+      `docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 --network my_network rabbitmq:management`
+      `docker run -d --name mediaharmony-api -p 8080:5000 --network my_network mediaharmony-api sh -c "sleep 10 && python routes.py"`
+      `docker run -d --name mediaharmony-movie-maker --network my_network mediaharmony-movie_maker sh -c "sleep 10 && python messaging_system/video_queue.py"`
+#### using docker with kubectl
+   build:
+   `cd api/`
+   `docker build -t mediaharmony-api:1.0 .`
+   `cd movie_maker/`
+   `docker build -t mediaharmony-movie-maker:1.0 .`
+   tag:
+   `docker tag mediaharmony-api <username>/mediaharmony-api:1.0`
+   `docker tag mediaharmony-movie-maker <username>/mediaharmony-movie-maker:1.0`
+   push:
+   `docker push <username>/mediaharmony-api:1.0`
+   `docker push <username>/mediaharmony-movie-maker:1.0`
+   deploy:
+   `cd api/deployment/`
+   `kubectl apply -f api-deployment.yaml`
+   `cd movie_maker/deployment/`
+   `kubectl apply -f movie-maker-deployment.yaml`
+   `cd rabbitmq/deployment`
+   `kubectl apply -f rabbitmq/deployment/rabbitmq-deployment.yaml`
+   `kubectl apply -f rabbitmq/deployment/rabbitmq-service.yaml`
